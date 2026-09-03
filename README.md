@@ -180,8 +180,14 @@ O Edge é Chromium, então o mesmo pacote serve para os dois. Gere o `.zip`:
 powershell -ExecutionPolicy Bypass -File .\empacotar.ps1
 ```
 
-Sai um `pausar-streamyard-teleprompter-<versao>.zip` na pasta acima (só `manifest.json`,
-`src/`, `pages/` e `icons/` — sem `.git`, sem `store/`, sem docs).
+Sai um `pausar-streamyard-teleprompter-<versao>.zip` **fora da pasta do projeto** (em
+`Downloads/`), com só `manifest.json`, `src/`, `pages/` e `icons/`. O script confere o pacote
+antes de terminar: manifest na raiz, nenhum arquivo compactado dentro, nada de `.git`,
+`store/` ou docs — e imprime o caminho exato para enviar.
+
+> **Não compacte a pasta do projeto na mão.** Isso leva `.git`, docs e o próprio `.zip` para
+> dentro do pacote, e o Edge recusa com *"The uploaded package consists of a compressed file"*.
+> O pacote precisa ter o `manifest.json` na **raiz** do zip e nenhum arquivo compactado dentro.
 
 **Antes de enviar, teste no Edge:** `edge://extensions/` → Modo desenvolvedor →
 *Carregar descompactada*. O ponto a conferir é o **painel lateral** (`chrome.sidePanel`);
