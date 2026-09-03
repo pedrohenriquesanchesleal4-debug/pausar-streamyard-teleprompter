@@ -172,6 +172,40 @@ O suporte antigo continua: o mesmo atalho pausa o `teleprompter.works` (seletor 
 botão por texto → tecla espaço como último recurso) e avisa a aba do StreamYard.
 Com o teleprompter embutido isso ficou opcional.
 
+## Publicar na loja (Edge / Chrome)
+
+O Edge é Chromium, então o mesmo pacote serve para os dois. Gere o `.zip`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\empacotar.ps1
+```
+
+Sai um `pausar-streamyard-teleprompter-<versao>.zip` na pasta acima (só `manifest.json`,
+`src/`, `pages/` e `icons/` — sem `.git`, sem `store/`, sem docs).
+
+**Antes de enviar, teste no Edge:** `edge://extensions/` → Modo desenvolvedor →
+*Carregar descompactada*. O ponto a conferir é o **painel lateral** (`chrome.sidePanel`);
+se o navegador não tiver a API, o clique no ícone cai nos Ajustes e o teleprompter continua
+disponível pelo overlay e pela janela separada (`🗔`).
+
+**Edge Add-ons** — <https://partner.microsoft.com/dashboard/microsoftedge>: registro gratuito
+no programa Microsoft Edge, *Nova extensão*, envia o `.zip`, preenche a listagem e submete.
+Revisão costuma levar alguns dias.
+
+**Chrome Web Store** — <https://chrome.google.com/webstore/devconsole>: mesma ideia, com taxa
+única de cadastro de desenvolvedor.
+
+O que a loja pede está pronto em:
+
+- `store/logo-300.png` — logo 300x300 (obrigatório no Edge)
+- `store/tile-440x280.png` — tile promocional (opcional)
+- `store/LISTAGEM.md` — nome, descrição curta e completa, categoria, e a justificativa de
+  cada permissão que o revisor pergunta
+- `PRIVACY.md` — política de privacidade; use a URL dela no formulário
+
+Falta só uma coisa que precisa de mão humana: **as capturas de tela** (1 a 10, 1280x800 ou
+640x480). `store/LISTAGEM.md` sugere quais telas valem a foto.
+
 ## Arquivos
 
 ```
@@ -185,6 +219,9 @@ src/background.js       atalhos globais do Chrome e repasse entre abas
 pages/options.*         ajustes completos + prévia ao vivo
 pages/sidepanel.*       teleprompter no painel lateral do Chrome
 pages/prompter.*        teleprompter em janela separada
+empacotar.ps1           gera o .zip para as lojas
+store/                  logo, tile e textos da listagem
+PRIVACY.md              politica de privacidade
 ```
 
 Ajustes ficam em `chrome.storage.sync`; o roteiro e a posição do painel em

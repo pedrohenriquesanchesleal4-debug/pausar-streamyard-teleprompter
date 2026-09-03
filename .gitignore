@@ -7,3 +7,6 @@ desktop.ini
 *.zip
 *.crx
 *.pem
+
+# staging do empacotador
+.pacote-tmp-*/

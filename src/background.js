@@ -47,14 +47,32 @@ async function reinjetar() {
 
 // ------------------------------------------------------------------ painel lateral
 // clicar no ícone da extensão abre o painel lateral
+let painelDisponivel = true;
+
 async function ligarPainelNoIcone() {
-  try { await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }); } catch (_) {}
+  try {
+    await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+    painelDisponivel = true;
+  } catch (_) {
+    // navegador sem Side Panel API (Edge antigo, Brave, etc.)
+    painelDisponivel = false;
+  }
 }
+
+// só dispara quando o clique no ícone NÃO abriu o painel lateral:
+// sem a API, o ícone abriria nada — então cai nos ajustes
+chrome.action.onClicked.addListener(async () => {
+  const r = await abrirPainel();
+  if (!r.ok) chrome.runtime.openOptionsPage();
+});
 chrome.runtime.onInstalled.addListener(ligarPainelNoIcone);
 chrome.runtime.onStartup.addListener(ligarPainelNoIcone);
 ligarPainelNoIcone();
 
 async function abrirPainel(tabId) {
+  if (!painelDisponivel || !chrome.sidePanel) {
+    return { ok: false, msg: "Este navegador não tem painel lateral de extensão; use o 🗔 (janela separada)." };
+  }
   try {
     if (tabId !== undefined) await chrome.sidePanel.open({ tabId });
     else {
