@@ -10,7 +10,23 @@ $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $raiz = $PSScriptRoot
-$versao = (Get-Content (Join-Path $raiz "manifest.json") -Raw | ConvertFrom-Json).version
+$manifesto = Get-Content (Join-Path $raiz "manifest.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+$versao = $manifesto.version
+
+# limites que a loja valida no manifest (recusa o pacote se passar)
+$limites = @{ name = 45; description = 132; short_name = 12 }
+$estouros = @()
+foreach ($campo in $limites.Keys) {
+  $valor = $manifesto.$campo
+  if ($valor -and $valor.Length -gt $limites[$campo]) {
+    $estouros += "$campo tem $($valor.Length) caracteres, o limite é $($limites[$campo])"
+  }
+}
+if ($estouros.Count -gt 0) {
+  Write-Host "MANIFEST INVÁLIDO:" -ForegroundColor Red
+  $estouros | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+  exit 1
+}
 
 # sai FORA da árvore do projeto, para nunca acabar dentro de um zip da pasta
 $destino = Split-Path (Split-Path $raiz -Parent) -Parent

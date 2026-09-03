@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Pausar StreamYard + Teleprompter",
-  "version": "2.7.0",
-  "description": "Teleprompter embutido em cima do StreamYard (modo fantasma) e uma tecla so (padrao Ctrl+Space) para pausar gravacao e rolagem juntos.",
+  "version": "2.7.1",
+  "description": "Teleprompter no painel lateral e sobre o StreamYard: uma tecla pausa a gravação e a rolagem do texto ao mesmo tempo.",
   "permissions": ["storage", "tabs", "scripting", "sidePanel"],
   "host_permissions": [
     "*://*.streamyard.com/*",
@@ -29,7 +29,7 @@
     },
     "toggle-pause": {
       "suggested_key": { "default": "Ctrl+Space" },
-      "description": "Pausar/retomar gravacao + teleprompter (funciona fora da aba)"
+      "description": "Pausar/retomar gravação + teleprompter (funciona fora da aba)"
     },
     "toggle-prompter": {
       "description": "Pausar/retomar somente o teleprompter"
@@ -38,7 +38,7 @@
       "description": "Mostrar/esconder o teleprompter"
     },
     "restart-prompter": {
-      "description": "Voltar o roteiro para o inicio"
+      "description": "Voltar o roteiro para o início"
     }
   },
   "side_panel": {

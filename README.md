@@ -185,6 +185,9 @@ Sai um `pausar-streamyard-teleprompter-<versao>.zip` **fora da pasta do projeto*
 antes de terminar: manifest na raiz, nenhum arquivo compactado dentro, nada de `.git`,
 `store/` ou docs — e imprime o caminho exato para enviar.
 
+O script também barra o pacote se o `manifest.json` passar dos limites da loja
+(`name` 45, `description` 132, `short_name` 12 caracteres) — a loja recusa o envio por isso.
+
 > **Não compacte a pasta do projeto na mão.** Isso leva `.git`, docs e o próprio `.zip` para
 > dentro do pacote, e o Edge recusa com *"The uploaded package consists of a compressed file"*.
 > O pacote precisa ter o `manifest.json` na **raiz** do zip e nenhum arquivo compactado dentro.
