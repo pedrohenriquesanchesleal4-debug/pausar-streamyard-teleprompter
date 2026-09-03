@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "Pausar StreamYard + Teleprompter",
+  "version": "2.7.0",
+  "description": "Teleprompter embutido em cima do StreamYard (modo fantasma) e uma tecla so (padrao Ctrl+Space) para pausar gravacao e rolagem juntos.",
+  "permissions": ["storage", "tabs", "scripting", "sidePanel"],
+  "host_permissions": [
+    "*://*.streamyard.com/*",
+    "*://*.teleprompter.works/*"
+  ],
+  "background": { "service_worker": "src/background.js" },
+  "content_scripts": [
+    {
+      "matches": ["*://*.streamyard.com/*"],
+      "js": ["src/shared.js", "src/prompter.js", "src/streamyard-target.js", "src/content-streamyard.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["*://*.teleprompter.works/*"],
+      "js": ["src/shared.js", "src/content-teleprompter.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "abrir-painel": {
+      "description": "Abrir o teleprompter no painel lateral"
+    },
+    "toggle-pause": {
+      "suggested_key": { "default": "Ctrl+Space" },
+      "description": "Pausar/retomar gravacao + teleprompter (funciona fora da aba)"
+    },
+    "toggle-prompter": {
+      "description": "Pausar/retomar somente o teleprompter"
+    },
+    "toggle-overlay": {
+      "description": "Mostrar/esconder o teleprompter"
+    },
+    "restart-prompter": {
+      "description": "Voltar o roteiro para o inicio"
+    }
+  },
+  "side_panel": {
+    "default_path": "pages/sidepanel.html"
+  },
+  "action": {
+    "default_title": "Teleprompter no painel lateral (clique para abrir)",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_page": "pages/options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["pages/prompter.html"],
+      "matches": ["*://*.streamyard.com/*"]
+    }
+  ]
+}

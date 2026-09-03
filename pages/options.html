@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Ajustes — Pausar StreamYard + Teleprompter</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 60px; background: #0d1017; color: #e6e9ef;
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+  section {
+    background: #141926; border: 1px solid #232b3d; border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  h2 { font-size: 14px; margin: 0 0 10px; letter-spacing: .3px; text-transform: uppercase; color: #93a4c0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 16px; }
+  label.f { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  label.f > span:first-child { color: #cbd5e1; }
+  label.chk { display: flex; align-items: center; gap: 8px; color: #cbd5e1; }
+  input[type=range] { width: 130px; accent-color: #3b82f6; }
+  input[type=number] { width: 74px; }
+  input[type=text], input[type=number], select, textarea {
+    background: #0d1220; color: #e6e9ef; border: 1px solid #2a3350; border-radius: 8px; padding: 6px 8px; font: inherit;
+  }
+  input[type=text] { width: 100%; }
+  input[type=color] { width: 34px; height: 26px; border: 0; background: none; padding: 0; }
+  output { min-width: 44px; text-align: right; color: #fff; font-variant-numeric: tabular-nums; }
+  textarea { width: 100%; min-height: 180px; resize: vertical; font: 13px/1.6 ui-monospace, Consolas, monospace; }
+  button {
+    background: #1f2940; color: #fff; border: 1px solid #33405f; border-radius: 8px;
+    padding: 7px 12px; cursor: pointer; font: inherit;
+  }
+  button:hover { background: #2a3654; }
+  button.primary { background: #2563eb; border-color: #3b82f6; }
+  button.danger { background: #7f1d1d; border-color: #b91c1c; }
+  button.mini { padding: 3px 8px; font-size: 12px; }
+  table.log { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.log th, table.log td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #202839; white-space: nowrap; }
+  table.log th { color: #93a4c0; position: sticky; top: 0; background: #141926; }
+  table.log td.linha { white-space: normal; color: #94a3b8; max-width: 320px; }
+  table.log tr.pausa td:first-child { color: #f59e0b; }
+  table.log tr.retomada td:first-child { color: #4ade80; }
+  table.log tr.marcador td:first-child { color: #60a5fa; }
+  table.log tr.inicio td:first-child { color: #e879f9; }
+  code.tc { font: 600 12px ui-monospace, Consolas, monospace; }
+  .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .hk {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center;
+    padding: 6px 0; border-bottom: 1px dashed #232b3d;
+  }
+  .hk:last-child { border-bottom: 0; }
+  .hk .nome { color: #cbd5e1; }
+  .hk button.cap { font: 600 13px ui-monospace, Consolas, monospace; min-width: 150px; }
+  .hk button.cap.ouvindo { background: #2563eb; border-color: #60a5fa; }
+  .dica { color: #8b9ab4; font-size: 12px; margin-top: 8px; }
+  .ok { color: #4ade80; }
+  .err { color: #f87171; }
+  #preview { height: 280px; border: 1px solid #232b3d; border-radius: 10px; overflow: hidden; position: relative; background: #05070c; }
+  .salvo { position: fixed; right: 16px; bottom: 16px; background: #166534; border: 1px solid #22c55e; color: #fff; padding: 8px 14px; border-radius: 10px; opacity: 0; transition: opacity .2s; }
+  .salvo.on { opacity: 1; }
+  body.embutido { padding: 10px 8px 40px; }
+  body.embutido h1, body.embutido .sub { display: none; }
+  body.embutido .wrap { max-width: none; }
+  body.embutido section { padding: 10px 10px; margin-bottom: 10px; }
+  body.embutido .hk { grid-template-columns: 1fr auto; }
+  body.embutido .hk button[data-limpar] { grid-column: 2; }
+  code { background: #0d1220; border: 1px solid #2a3350; border-radius: 5px; padding: 1px 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pausar StreamYard + Teleprompter</h1>
+  <div class="sub">Teleprompter próprio em cima do StreamYard e uma tecla só para pausar gravação + rolagem. Tudo salva na hora.</div>
+
+  <section data-vista="ajustes">
+    <h2>Atalhos (dentro da página)</h2>
+    <div class="hk"><span class="nome">Pausar/retomar <b>gravação + teleprompter</b></span><button class="cap" data-hotkey="hotkeyAll"></button><button data-limpar="hotkeyAll">limpar</button></div>
+    <div class="hk"><span class="nome">Pausar/retomar só o teleprompter</span><button class="cap" data-hotkey="hotkeyPrompter"></button><button data-limpar="hotkeyPrompter">limpar</button></div>
+    <div class="hk"><span class="nome">Mostrar/esconder o teleprompter</span><button class="cap" data-hotkey="hotkeyOverlay"></button><button data-limpar="hotkeyOverlay">limpar</button></div>
+    <div class="hk"><span class="nome">Voltar o roteiro ao início</span><button class="cap" data-hotkey="hotkeyRestart"></button><button data-limpar="hotkeyRestart">limpar</button></div>
+    <div class="hk"><span class="nome">Acelerar</span><button class="cap" data-hotkey="hotkeySpeedUp"></button><button data-limpar="hotkeySpeedUp">limpar</button></div>
+    <div class="hk"><span class="nome">Desacelerar</span><button class="cap" data-hotkey="hotkeySpeedDown"></button><button data-limpar="hotkeySpeedDown">limpar</button></div>
+    <div class="hk"><span class="nome">Fonte maior</span><button class="cap" data-hotkey="hotkeyFontUp"></button><button data-limpar="hotkeyFontUp">limpar</button></div>
+    <div class="hk"><span class="nome">Fonte menor</span><button class="cap" data-hotkey="hotkeyFontDown"></button><button data-limpar="hotkeyFontDown">limpar</button></div>
+    <div class="hk"><span class="nome">Subir um pouco o roteiro</span><button class="cap" data-hotkey="hotkeyNudgeUp"></button><button data-limpar="hotkeyNudgeUp">limpar</button></div>
+    <div class="hk"><span class="nome">Descer um pouco o roteiro</span><button class="cap" data-hotkey="hotkeyNudgeDown"></button><button data-limpar="hotkeyNudgeDown">limpar</button></div>
+    <div class="hk"><span class="nome">Marcar momento no log (🚩 “corta aqui”)</span><button class="cap" data-hotkey="hotkeyMarcar"></button><button data-limpar="hotkeyMarcar">limpar</button></div>
+    <div class="dica">
+      Clique no atalho e aperte a combinação. <b>Padrão: Ctrl + Espaço.</b>
+      Esses atalhos valem quando o StreamYard (ou o teleprompter.works) está na frente.
+      Para funcionar com o Chrome em outra aba/janela, use o atalho global:
+      <button id="atalhosChrome">abrir chrome://extensions/shortcuts</button>
+    </div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>Roteiro</h2>
+    <textarea id="roteiro" spellcheck="false" placeholder="Cole seu roteiro aqui..."></textarea>
+    <div class="row" style="margin-top:8px">
+      <button id="importar">Importar .txt</button>
+      <input type="file" id="arquivo" accept=".txt,.md,text/plain" hidden />
+      <button id="limparRoteiro">Limpar</button>
+      <span class="dica" id="infoRoteiro"></span>
+    </div>
+  </section>
+
+  <section data-vista="completo">
+    <h2>Prévia</h2>
+    <div id="preview"></div>
+    <div class="dica">É o mesmo teleprompter que aparece em cima do StreamYard. Clique no texto para dar play/pause.</div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>Rolagem</h2>
+    <div class="grid">
+      <label class="f"><span>Velocidade (px/s)</span><span class="row"><input type="range" data-s="speed" min="5" max="300" step="1"><output data-o="speed"></output></span></label>
+      <label class="f"><span>Passo da velocidade</span><input type="number" data-s="speedStep" min="1" max="50"></label>
+      <label class="f"><span>Empurrão do Ctrl+↑/↓ (px)</span><input type="number" data-s="nudgePx" min="10" max="600" step="10"></label>
+      <label class="f">
+        <span>Contagem antes de rolar (s)</span>
+        <span class="row">
+          <input type="number" data-s="countdown" min="0" max="60" step="1">
+          <button class="mini" data-timer="0">off</button>
+          <button class="mini" data-timer="3">3s</button>
+          <button class="mini" data-timer="5">5s</button>
+          <button class="mini" data-timer="10">10s</button>
+        </span>
+      </label>
+      <label class="chk"><input type="checkbox" data-s="countdownOnResume"> Contar também ao retomar (não só no início do roteiro)</label>
+      <label class="chk"><input type="checkbox" data-s="loop"> Repetir do início ao terminar</label>
+      <label class="chk"><input type="checkbox" data-s="hideBarWhilePlaying"> Esconder as barras enquanto rola</label>
+    </div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>Texto</h2>
+    <div class="grid">
+      <label class="f"><span>Tamanho da fonte</span><span class="row"><input type="range" data-s="fontSize" min="14" max="160"><output data-o="fontSize"></output></span></label>
+      <label class="f"><span>Fonte</span><select data-s="fontFamily">
+        <option value="system">Sistema</option><option value="condensed">Estreita</option>
+        <option value="serif">Serifada</option><option value="mono">Monoespaçada</option>
+      </select></label>
+      <label class="f"><span>Entrelinha</span><span class="row"><input type="range" data-s="lineHeight" min="1" max="3" step="0.05"><output data-o="lineHeight"></output></span></label>
+      <label class="f"><span>Espaço entre letras (px)</span><input type="number" data-s="letterSpacing" min="-2" max="10" step="0.5"></label>
+      <label class="f"><span>Alinhamento</span><select data-s="align"><option value="left">Esquerda</option><option value="center">Centro</option></select></label>
+      <label class="f"><span>Largura do texto (%)</span><span class="row"><input type="range" data-s="width" min="40" max="100"><output data-o="width"></output></span></label>
+      <label class="f"><span>Cor do texto</span><input type="color" data-s="textColor"></label>
+      <label class="chk"><input type="checkbox" data-s="bold"> Negrito</label>
+    </div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>Painel / segundo plano</h2>
+    <div class="grid">
+      <label class="f"><span>Cor do fundo</span><input type="color" data-s="bgColor"></label>
+      <label class="f"><span>Opacidade do fundo</span><span class="row"><input type="range" data-s="bgOpacity" min="0" max="1" step="0.05"><output data-o="bgOpacity"></output></span></label>
+      <label class="f"><span>Linha de leitura (% da altura)</span><span class="row"><input type="range" data-s="guidePos" min="10" max="80"><output data-o="guidePos"></output></span></label>
+      <label class="chk"><input type="checkbox" data-s="fadeEdges"> Desbotar topo e base</label>
+      <label class="chk"><input type="checkbox" data-s="guideLine"> Mostrar linha de leitura</label>
+      <label class="chk"><input type="checkbox" data-s="mirrorH"> Espelhar na horizontal ↔</label>
+      <label class="chk"><input type="checkbox" data-s="mirrorV"> Espelhar na vertical ↕</label>
+      <label class="chk"><input type="checkbox" data-s="ghost"> Modo fantasma (cliques atravessam)</label>
+      <label class="chk"><input type="checkbox" data-s="overlayVisible"> Mostrar o teleprompter no StreamYard</label>
+    </div>
+    <div class="dica">Modo fantasma + opacidade baixa = o teleprompter fica “em segundo plano”, você continua clicando no StreamYard normalmente. Arraste pelo topo do painel e redimensione pelo canto.</div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>StreamYard</h2>
+    <label class="chk"><input type="checkbox" data-s="pauseRecording"> O atalho principal também clica no botão de gravação do StreamYard</label>
+    <div style="margin-top:10px">
+      <label class="f" style="flex-direction:column; align-items:stretch; gap:4px">
+        <span>Seletor CSS do botão de gravação (opcional)</span>
+        <input type="text" data-s="streamyardSelector" placeholder='ex: [data-testid="record-button"]' />
+      </label>
+      <label class="f" style="flex-direction:column; align-items:stretch; gap:4px; margin-top:8px">
+        <span>Seletor CSS do cronômetro da gravação (opcional — normalmente descoberto sozinho)</span>
+        <input type="text" data-s="streamyardTimerSelector" placeholder="só preencha se o timecode do log sair errado" />
+      </label>
+      <label class="f" style="flex-direction:column; align-items:stretch; gap:4px; margin-top:8px">
+        <span>Seletor alternativo (caminho no DOM — usado quando o de cima falha)</span>
+        <input type="text" data-s="streamyardSelectorAlt" placeholder="preenchido sozinho pelo 🎯" />
+      </label>
+      <div class="row" style="margin-top:8px">
+        <button id="testarSy">Testar nas abas abertas</button>
+        <span id="msgSy" class="dica"></span>
+      </div>
+      <div class="dica">
+        Mais fácil que catar seletor: abra o StreamYard, clique no <b>🎯</b> da barrinha embaixo à esquerda
+        e depois clique no botão real de gravação. A extensão aprende sozinha e guarda
+        dois seletores, porque o botão do StreamYard troca de rótulo
+        (<code>aria-label="Pausar"</code> ⇄ <code>"Retomar"</code>).
+        Ela nunca clica em “Encerrar transmissão”, “Sair do estúdio” e afins.
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <label class="f" style="flex-direction:column; align-items:stretch; gap:4px">
+        <span>Seletor CSS no teleprompter.works (só se você usa o site de fora)</span>
+        <input type="text" data-s="teleprompterSelector" placeholder="ex: #pause-button" />
+      </label>
+    </div>
+  </section>
+
+  <section data-vista="log">
+    <h2>Registro de pausas (para cortar depois)</h2>
+    <label class="chk"><input type="checkbox" data-s="logPauses"> Anotar cada pausa/retomada com o timecode da gravação</label>
+    <div class="row" style="margin-top:10px">
+      <button id="logAtualizar">Atualizar</button>
+      <button id="logJson" class="primary">Baixar JSON</button>
+      <button id="logCsv">Baixar CSV</button>
+      <button id="logCopiar">Copiar JSON</button>
+      <button id="logLimpar" class="danger">Limpar registro</button>
+      <span class="dica" id="logMsg"></span>
+    </div>
+    <div id="logTabela" style="margin-top:10px; max-height:340px; overflow:auto"></div>
+    <div class="dica">
+      O <code>timecode</code> é a posição no arquivo gravado — enquanto a gravação está pausada o
+      StreamYard não grava, então esse número é exatamente o ponto da emenda no vídeo final.
+      Ele vem do cronômetro do estúdio quando dá para ler; se não der, é somado aqui e sai
+      marcado como <code>timecodeAproximado</code>. <b>🚩 Alt+M</b> (ou o 🚩 da barrinha) crava um
+      marcador sem pausar nada. Cada sessão de gravação vira um <code>sessao</code> diferente
+      (nova sessão após 4 h sem eventos).
+    </div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>Diagnóstico</h2>
+    <div class="row">
+      <button id="diagBtn" class="primary">Verificar instalação</button>
+      <button id="reinjetar">Reconectar nas abas abertas</button>
+    </div>
+    <pre id="diag" class="dica" style="white-space:pre-wrap; margin-top:10px"></pre>
+    <div class="dica">
+      Use isto quando “não pausa”: mostra a versão carregada, se o atalho global do Chrome
+      ficou registrado, quais abas responderam e se o botão de gravação foi localizado.
+    </div>
+  </section>
+
+  <section data-vista="ajustes">
+    <h2>Extras</h2>
+    <div class="row">
+      <button id="janela" class="primary">Abrir teleprompter em janela separada</button>
+      <button id="abrirSy">Abrir o StreamYard</button>
+      <button id="resetPainel">Recolocar o painel no lugar</button>
+      <button id="reset" class="danger">Restaurar padrões</button>
+    </div>
+    <div class="dica">A janela separada serve para segundo monitor ou tablet; ela obedece aos mesmos atalhos.</div>
+  </section>
+</div>
+
+<div class="salvo" id="salvo">Salvo</div>
+
+<script src="../src/shared.js"></script>
+<script src="../src/prompter.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

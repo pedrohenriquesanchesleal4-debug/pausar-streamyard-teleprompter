@@ -1,0 +1,9 @@
+# lixo de sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# pacote da extensao
+*.zip
+*.crx
+*.pem
