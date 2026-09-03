@@ -4,56 +4,78 @@ Copiar e colar nos campos do Partner Center. Tudo já dentro dos limites de cara
 
 ## Nome (até 45)
 
+(32 caracteres)
+
 ```
 Pausar StreamYard + Teleprompter
 ```
 
-## Descrição curta / resumo (até 132)
+## Descrição curta (até 132)
+
+(116 caracteres)
 
 ```
-Teleprompter no painel lateral e sobre o StreamYard, com uma tecla que pausa a gravação e a rolagem do texto juntas.
+Teleprompter no painel lateral e sobre o StreamYard: uma tecla pausa a gravação e a rolagem do texto ao mesmo tempo.
 ```
 
-## Descrição completa
+## Descrição completa (até 10.000)
+
+(3274 caracteres)
 
 ```
-Um teleprompter feito para quem grava no StreamYard — e uma tecla só (padrão Ctrl+Espaço) que
-pausa a gravação e a rolagem do texto ao mesmo tempo. Sem malabarismo com duas janelas.
+Gravar no StreamYard lendo um roteiro costuma virar malabarismo: o teleprompter está em outra aba ou em outro site, e quando você precisa parar para respirar, tossir ou corrigir uma frase, tem que pausar a gravação em um lugar e o texto em outro — e as duas coisas nunca param juntas.
 
-TRÊS JEITOS DE USAR, MESMO ROTEIRO
-• Painel lateral do navegador, com abas Teleprompter, Ajustes e Log
-• Sobreposto ao StreamYard, com modo fantasma: semitransparente e com os cliques
-  atravessando o painel, então o estúdio continua utilizável por baixo
-• Janela separada, para segundo monitor ou tablet
+Esta extensão resolve isso com uma tecla. O atalho (padrão Ctrl+Espaço, e você pode trocar) pausa e retoma a gravação do StreamYard e a rolagem do texto ao mesmo tempo.
 
-TELEPROMPTER
-• Rolagem suave de 5 a 300 px/s, com contagem regressiva ao iniciar e ao retomar
-• Espelhamento horizontal e vertical, para vidro de teleprompter
-• Fonte, entrelinha, largura da coluna, alinhamento, cores e opacidade ajustáveis
-• Linha de leitura com posição regulável e bordas desbotadas
+TRÊS JEITOS DE USAR, O MESMO ROTEIRO
+
+• Painel lateral do navegador, com abas Teleprompter, Ajustes e Registro — encaixado ao lado do estúdio, com largura ajustável, sem cobrir nada.
+• Sobreposto ao StreamYard, em modo fantasma: semitransparente e com os cliques atravessando o painel, então você continua operando o estúdio normalmente por baixo. Arraste e redimensione onde quiser.
+• Em janela separada, para segundo monitor ou tablet.
+
+Os três compartilham roteiro, ajustes e estado, e pausam juntos.
+
+O TELEPROMPTER
+
+• Rolagem suave, de 5 a 300 px/s, com aceleração pelo teclado
+• Contagem regressiva antes de voltar a rolar, tanto ao iniciar quanto ao retomar (padrão 5 s, configurável ou desligável) — dá tempo de respirar e entrar na fala
+• Espelhamento horizontal e vertical, para uso com vidro de teleprompter
+• Fonte, entrelinha, largura da coluna, alinhamento, cores e opacidade do fundo
+• Linha de leitura com posição regulável e bordas desbotadas, para o olho não perder o ponto
 • Barra de progresso com tempo gasto e restante, modo foco e tela cheia
-• Editor embutido com contagem de palavras e estimativa de duração da fala
-• Importa roteiro de arquivo .txt
+• Editor embutido, com contagem de palavras e estimativa de duração da fala
+• Importa o roteiro de um arquivo .txt
+• Clique no texto dá play/pause; a roda do mouse move o roteiro na mão
 
-ATALHOS (todos configuráveis)
+ATALHOS, TODOS CONFIGURÁVEIS
+
 • Ctrl+Espaço — pausa e retoma gravação + rolagem
 • Alt+Espaço — pausa só o teleprompter
-• Ctrl+Setas — empurra o roteiro um pouco
+• Ctrl+Setas — empurra o roteiro um pouco, sem parar a rolagem
 • Alt+Setas — acelera e desacelera
-• Alt+T — esconde e mostra
+• Alt+Shift+Setas — aumenta e diminui a fonte
+• Alt+T — esconde e mostra o teleprompter
+• Alt+R — volta ao início
 • Alt+M — crava um marcador no registro
 
-REGISTRO DE PAUSAS PARA A EDIÇÃO
-Cada pausa e retomada é anotada com o timecode da gravação, ou seja, a posição no arquivo
-final. Exporta em JSON e CSV, com a linha do roteiro que estava sendo lida em cada ponto:
-na hora de cortar, você vai direto na emenda.
+REGISTRO DE PAUSAS, PARA A EDIÇÃO
+
+Cada pausa e retomada é anotada com o timecode da gravação — a posição no arquivo final, não a hora do relógio. Como o StreamYard não grava enquanto está pausado, esse número é exatamente o ponto da emenda no vídeo.
+
+O registro sai em JSON e CSV e leva também a linha do roteiro que estava sendo lida em cada ponto. Na hora de editar, você vai direto na emenda em vez de procurar no timeline. O Alt+M marca um "corta aqui" sem pausar nada.
+
+E QUANDO O BOTÃO MUDA DE LUGAR
+
+A extensão identifica sozinha o botão de gravação do StreamYard, inclusive quando ele é só um ícone, e nunca clica em "Encerrar transmissão", "Sair do estúdio" ou parecidos. Se a interface mudar, o modo aprender resolve: clique no alvo (🎯) e depois no botão real, uma vez. Há uma tela de diagnóstico mostrando o que foi localizado.
 
 PRIVACIDADE
-Nenhuma requisição de rede, nenhum analytics, nenhum dado enviado para fora. Ajustes,
-roteiro e registro ficam apenas no seu navegador.
 
-Código aberto:
+Nenhuma requisição de rede, nenhum analytics, nenhum dado enviado para fora. Ajustes, roteiro e registro ficam apenas no seu navegador, e você apaga tudo quando quiser.
+
+Código aberto, com o repositório em
 https://github.com/pedrohenriquesanchesleal4-debug/pausar-streamyard-teleprompter
+
+Extensão independente, sem vínculo com o StreamYard.
 ```
 
 ## Categoria sugerida
