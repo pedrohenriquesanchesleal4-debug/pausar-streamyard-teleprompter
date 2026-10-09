@@ -79,6 +79,14 @@
 
   // ------------------------------------------------------------------ storage
   async function loadSettings() {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.sync) {
+      try {
+        const local = localStorage.getItem("pausar_settings");
+        return Object.assign({}, DEFAULTS, local ? JSON.parse(local) : {});
+      } catch (_) {
+        return Object.assign({}, DEFAULTS);
+      }
+    }
     const sync = await chrome.storage.sync.get([
       "settings", "shortcutKey", "streamyardSelector", "teleprompterSelector"
     ]);
@@ -101,6 +109,10 @@
   async function saveSettings(patch) {
     const atual = await loadSettings();
     const novo = Object.assign({}, atual, patch);
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.sync) {
+      try { localStorage.setItem("pausar_settings", JSON.stringify(novo)); } catch (_) {}
+      return novo;
+    }
     await chrome.storage.sync.set({ settings: novo });
     return novo;
   }
@@ -121,19 +133,43 @@
 
   async function resetSettings() {
     const novo = Object.assign({}, DEFAULTS);
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.sync) {
+      try { localStorage.setItem("pausar_settings", JSON.stringify(novo)); } catch (_) {}
+      return novo;
+    }
     await chrome.storage.sync.set({ settings: novo });
     return novo;
   }
 
   // roteiro e geometria ficam em `local` (sync tem limite de 8KB por item)
   async function loadScript() {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      try {
+        const local = localStorage.getItem("pausar_script");
+        return typeof local === "string" && local.length > 0 ? local : SCRIPT_DEFAULT;
+      } catch (_) {
+        return SCRIPT_DEFAULT;
+      }
+    }
     const d = await chrome.storage.local.get("script");
     return typeof d.script === "string" ? d.script : SCRIPT_DEFAULT;
   }
   function saveScript(texto) {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      try { localStorage.setItem("pausar_script", texto); } catch (_) {}
+      return Promise.resolve();
+    }
     return chrome.storage.local.set({ script: texto });
   }
   async function loadPanel() {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      try {
+        const local = localStorage.getItem("pausar_panel");
+        return Object.assign({}, PANEL_DEFAULT, local ? JSON.parse(local) : {});
+      } catch (_) {
+        return Object.assign({}, PANEL_DEFAULT);
+      }
+    }
     const d = await chrome.storage.local.get("panel");
     const p = Object.assign({}, d.panel || {});
     // quem já usou a v2.0 tem 640x340 salvo — pequeno demais, cortava os controles
@@ -142,9 +178,17 @@
   }
 
   function resetPanel() {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      try { localStorage.removeItem("pausar_panel"); } catch (_) {}
+      return Promise.resolve();
+    }
     return chrome.storage.local.remove("panel");
   }
   function savePanel(p) {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      try { localStorage.setItem("pausar_panel", JSON.stringify(p)); } catch (_) {}
+      return Promise.resolve();
+    }
     return chrome.storage.local.set({ panel: p });
   }
 
@@ -162,6 +206,15 @@
     if (log.length > limite) log.splice(0, log.length - limite);
     await chrome.storage.local.set({ log });
     return evento;
+  }
+
+  // corrige o ultimo evento (usado quando a medicao do cronometro chega depois)
+  async function atualizarUltimoLog(patch) {
+    const log = await loadLog();
+    if (!log.length) return null;
+    Object.assign(log[log.length - 1], patch);
+    await chrome.storage.local.set({ log });
+    return log[log.length - 1];
   }
 
   function clearLog() {
@@ -313,7 +366,7 @@
     DEFAULTS, PANEL_DEFAULT, SCRIPT_DEFAULT,
     loadSettings, saveSettings, saveSettingsDebounced, resetSettings,
     loadScript, saveScript, loadPanel, savePanel, resetPanel, onChange,
-    loadLog, appendLog, clearLog, loadSessao, saveSessao,
+    loadLog, appendLog, atualizarUltimoLog, clearLog, loadSessao, saveSessao,
     comboFromEvent, matches, normalize, bonito, keyName,
     fontStack, hexParaRgba, mmss, hhmmss, timecodeParaSeg
   };
