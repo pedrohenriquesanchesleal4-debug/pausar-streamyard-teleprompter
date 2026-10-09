@@ -45,9 +45,64 @@ button:hover { background: rgba(255,255,255,.18); }
 button.on { background: #2563eb; border-color: #3b82f6; }
 button.play { background: #16a34a; border-color: #22c55e; font-size: 14px; min-width: 40px; }
 button.play.pausing { background: #b45309; border-color: #f59e0b; }
+button.voice.on { background: #16a34a; border-color: #22c55e; }
+
+/* barra de alternância de modo (Voz / Manual) */
+.sub-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 8px; background: rgba(14, 18, 26, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08); flex: 0 0 auto; gap: 6px;
+}
+.mode-bar {
+  display: flex; gap: 6px; flex: 1 1 auto;
+}
+.btn-m {
+  flex: 1 1 auto; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8; cursor: pointer; text-align: center; transition: all 0.2s; white-space: nowrap;
+}
+.btn-m:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.btn-m.on {
+  background: #2563eb; color: #fff; border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+}
+.btn-m[data-m="voz"].on {
+  background: #15803d; border-color: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);
+}
+
+/* caixa de áudio / transcrição ao vivo */
+.v-box {
+  display: flex; align-items: center; gap: 8px; padding: 5px 10px;
+  background: rgba(10, 14, 20, 0.96); border-bottom: 1px solid rgba(59, 130, 246, 0.25);
+  font-size: 11px; flex: 0 0 auto; min-height: 28px; transition: background 0.2s, border-color 0.2s;
+}
+.v-box.hearing {
+  background: rgba(16, 50, 30, 0.98); border-bottom-color: #22c55e;
+}
+.v-pulse {
+  font-size: 13px; line-height: 1; flex: 0 0 auto;
+}
+.v-box.hearing .v-pulse {
+  animation: pulse-mic 0.7s infinite alternate;
+}
+@keyframes pulse-mic {
+  from { transform: scale(1); filter: drop-shadow(0 0 2px #22c55e); }
+  to { transform: scale(1.25); filter: drop-shadow(0 0 8px #4ade80); }
+}
+.v-lbl {
+  color: #94a3b8; font-weight: 700; white-space: nowrap; flex: 0 0 auto;
+}
+.v-txt {
+  color: #f1f5f9; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1 1 auto;
+}
+.v-txt a {
+  color: #38bdf8; text-decoration: underline; cursor: pointer;
+}
 
 /* palco do texto */
-.stage { position: relative; flex: 1 1 auto; min-height: 96px; overflow: hidden; cursor: pointer; }
+.stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; cursor: pointer; }
 .stage .flip { position: absolute; inset: 0; transform-origin: 50% 50%; }
 .scroller { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
 .txt {
@@ -56,15 +111,21 @@ button.play.pausing { background: #b45309; border-color: #f59e0b; }
   font-weight: var(--fw); font-family: var(--ff); white-space: pre-wrap;
   word-break: break-word; text-shadow: 0 2px 6px rgba(0,0,0,.55);
 }
-.txt p { min-height: .6em; }
+.txt p { min-height: .6em; padding: 4px 6px; margin-bottom: 2px; border-radius: 4px; transition: all 0.2s ease; }
+.txt p.active-line {
+  background: rgba(37, 99, 235, 0.28);
+  border-left: 4px solid #3b82f6;
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+}
 .guide {
   position: absolute; left: 0; right: 0; top: var(--guide); height: 2px;
   background: linear-gradient(90deg, transparent, #ef4444, transparent); opacity: .8; display: none;
 }
 .tp.guide-on .guide { display: block; }
-.fade { position: absolute; left: 0; right: 0; height: 18%; display: none; pointer-events: none; }
-.fade.t { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,.95), transparent); }
-.fade.b { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,.95), transparent); }
+.fade { position: absolute; left: 0; right: 0; height: 10%; display: none; pointer-events: none; z-index: 2; }
+.fade.t { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,.85), transparent); }
+.fade.b { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,.85), transparent); }
 .tp.fade-on .fade { display: block; }
 .count {
   position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
@@ -127,13 +188,15 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
 /* painel estreito (side panel): controles encolhem em vez de cortar o texto */
 .tp.compact .hd { padding: 4px 6px; gap: 4px; }
 .tp.compact .hd .ttl, .tp.compact .hd .grip { display: none; }
-.tp.compact .ctl { gap: 5px; padding: 5px 6px; }
-.tp.compact .ctl label { gap: 3px; font-size: 11px; }
-.tp.compact input[type=range] { width: 58px; min-width: 44px; }
-.tp.compact .time { flex-basis: 100%; text-align: right; }
-.tp.narrow .time { display: none; }
+.tp.compact .sub-hd { padding: 4px 6px; }
+.tp.compact .btn-m { padding: 4px 6px; font-size: 10px; }
+.tp.compact .ctl { gap: 4px; padding: 4px 6px; }
+.tp.compact .ctl label { gap: 2px; font-size: 10px; }
+.tp.compact input[type=range] { width: 50px; min-width: 40px; }
+.tp.compact .time { display: none; }
+.tp.narrow .sub-hd { flex-direction: column; gap: 3px; }
 .tp.narrow .lab { display: none; }
-.tp.narrow input[type=range] { width: 52px; }
+.tp.narrow input[type=range] { width: 44px; }
 .tp.narrow .grid { grid-template-columns: 1fr; }
 `;
 
@@ -144,11 +207,25 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
     <span class="ttl">Teleprompter</span>
     <span class="stat">pausado</span>
     <span class="sp"></span>
+    <button data-a="voice" class="voice" title="Acompanhamento inteligente de voz (pt-BR)">🎙</button>
     <button data-a="editor" title="Editar roteiro">✎</button>
     <button data-a="cfg" title="Ajustes rápidos">⚙</button>
     <button data-a="ghost" title="Modo fantasma: cliques passam para o site">👻</button>
     <button data-a="full" title="Tela cheia / modo foco (Esc sai)">⛶</button>
     <button data-a="hide" title="Esconder">✕</button>
+  </div>
+
+  <div class="sub-hd">
+    <div class="mode-bar">
+      <button class="btn-m on" data-m="voz" title="Modo Inteligente: O teleprompter desce sozinho acompanhando sua voz">🎙️ Modo Voz (Auto)</button>
+      <button class="btn-m" data-m="manual" title="Modo Manual: Rolagem contínua por velocidade ajustável">⏱️ Modo Manual</button>
+    </div>
+  </div>
+
+  <div class="v-box" id="v-box" title="O que você está falando em tempo real">
+    <span class="v-pulse">🎙️</span>
+    <span class="v-lbl">Ouvido no Mic:</span>
+    <span class="v-txt" id="v-txt">❝ Fale algo no microfone... ❞</span>
   </div>
 
   <div class="stage">
@@ -166,7 +243,7 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
     <button data-a="back" title="Subir um pouco">↑</button>
     <button class="play" data-a="play" title="Play / Pause">▶</button>
     <button data-a="fwd" title="Descer um pouco">↓</button>
-    <label><b class="lab">Vel</b><input type="range" data-s="speed" min="5" max="300" step="1"><output data-o="speed">45</output></label>
+    <label class="ctl-speed" style="display:none;"><b class="lab">Vel</b><input type="range" data-s="speed" min="5" max="300" step="1"><output data-o="speed">45</output></label>
     <label><b class="lab">Fonte</b><input type="range" data-s="fontSize" min="14" max="160" step="1"><output data-o="fontSize">44</output></label>
     <span class="time">0:00 / 0:00</span>
   </div>
@@ -228,6 +305,8 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
     let painel = Object.assign({}, P.PANEL_DEFAULT);
     let roteiro = "";
     let offset = 0;
+    let targetOffset = 0;
+    let modo = "voz";
     let maxOffset = 0;
     let tocando = false;
     let ultimoT = 0;
@@ -269,7 +348,29 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
     const inputArquivo = $('input[type=file]');
     const alcaResize = $(".rs");
 
+    const vBox = $("#v-box");
+    const vTxt = $("#v-txt");
+    const vPulse = $(".v-pulse");
+    const btnModoVoz = $('[data-m="voz"]');
+    const btnModoManual = $('[data-m="manual"]');
+    const ctlSpeed = $(".ctl-speed");
+
     if (modoPagina) tp.classList.add("page");
+
+    function definirModo(novoModo) {
+      modo = novoModo === "manual" ? "manual" : "voz";
+      if (btnModoVoz) btnModoVoz.classList.toggle("on", modo === "voz");
+      if (btnModoManual) btnModoManual.classList.toggle("on", modo === "manual");
+      if (ctlSpeed) ctlSpeed.style.display = modo === "manual" ? "flex" : "none";
+      if (vBox) vBox.style.display = modo === "voz" ? "flex" : "none";
+
+      if (modo === "voz") {
+        ativarVoz();
+      } else {
+        desativarVoz();
+      }
+      pintar();
+    }
 
     // ------------------------------------------------------------- aparência
     function aplicarCfg() {
@@ -342,10 +443,21 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
 
     function medir() {
       const h = stage.clientHeight || 300;
-      txt.style.paddingTop = Math.round(h * (cfg.guidePos / 100)) + "px";
-      txt.style.paddingBottom = Math.round(h * 0.9) + "px";
-      maxOffset = Math.max(0, scroller.scrollHeight - h * 0.25);
+      const w = stage.clientWidth || 400;
+
+      // Em painel estreito (sidepanel ~320px), reduz fonte padrão para caber frase inteira sem cortar
+      if (w < 380 && cfg.fontSize > 32) {
+        host.style.setProperty("--fs", "26px");
+      } else {
+        host.style.setProperty("--fs", cfg.fontSize + "px");
+      }
+
+      const guideOffset = Math.round(h * (cfg.guidePos / 100));
+      txt.style.paddingTop = guideOffset + "px";
+      txt.style.paddingBottom = Math.round(h * 0.45) + "px";
+      maxOffset = Math.max(0, scroller.scrollHeight - h * 0.35);
       if (offset > maxOffset) offset = maxOffset;
+      if (targetOffset > maxOffset) targetOffset = maxOffset;
       pintar();
     }
 
@@ -358,7 +470,7 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
       tempo.textContent = P.mmss(gasto) + " / -" + P.mmss(restante);
       btnPlay.textContent = (tocando || contando) ? "❚❚" : "▶";
       btnPlay.classList.toggle("pausing", tocando || contando);
-      if (!contando) stat.textContent = tocando ? "rolando" : "pausado";
+      if (!contando) stat.textContent = tocando ? (modo === "voz" ? "ouvindo..." : "rolando") : "pausado";
       stat.classList.toggle("on", tocando);
       tp.classList.toggle("playing", tocando);
     }
@@ -369,11 +481,23 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
       if (!ultimoT) ultimoT = t;
       const dt = Math.min(0.25, (t - ultimoT) / 1000);
       ultimoT = t;
-      offset += cfg.speed * dt;
-      if (offset >= maxOffset) {
-        offset = cfg.loop ? 0 : maxOffset;
-        if (!cfg.loop) { pausar(); return; }
+
+      if (modo === "manual") {
+        offset += cfg.speed * dt;
+        if (offset >= maxOffset) {
+          offset = cfg.loop ? 0 : maxOffset;
+          if (!cfg.loop) { pausar(); return; }
+        }
+      } else {
+        // MODO VOZ: interpolação suave (lerp) em direção à linha falada (targetOffset)
+        const diff = targetOffset - offset;
+        if (Math.abs(diff) > 0.5) {
+          offset += diff * 0.16;
+          if (offset >= maxOffset) offset = maxOffset;
+          if (offset < 0) offset = 0;
+        }
       }
+
       pintar();
       rafId = requestAnimationFrame(laco);
     }
@@ -393,6 +517,8 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
       ultimoT = 0;
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(laco);
+      if (alignmentEngine) alignmentEngine.setManualPaused(false);
+      if (stateMachine) stateMachine.manualResume();
       pintar();
       avisar();
     }
@@ -403,6 +529,8 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
       contagem.classList.remove("on");
       tocando = false;
       cancelAnimationFrame(rafId);
+      if (alignmentEngine) alignmentEngine.setManualPaused(true);
+      if (stateMachine) stateMachine.manualPause();
       pintar();
       avisar();
     }
@@ -455,11 +583,26 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
 
     function reiniciar() {
       offset = 0;
+      targetOffset = 0;
+      if (alignmentEngine) alignmentEngine.repositionToIndex(0);
+      txt.querySelectorAll("p.active-line").forEach((p) => p.classList.remove("active-line"));
       pintar();
     }
 
     function empurrar(px) {
       offset = Math.max(0, Math.min(maxOffset, offset + px));
+      targetOffset = offset;
+      if (alignmentEngine) {
+        const alvo = offset + stage.clientHeight * (cfg.guidePos / 100);
+        let melhorIdx = 0;
+        let dist = Infinity;
+        const paras = Array.from(txt.children);
+        paras.forEach((p, idx) => {
+          const d = Math.abs(p.offsetTop + p.offsetHeight / 2 - alvo);
+          if (d < dist) { dist = d; melhorIdx = idx; }
+        });
+        alignmentEngine.repositionToLine(melhorIdx);
+      }
       pintar();
     }
 
@@ -517,13 +660,167 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
       infoEditor.textContent = palavras + " palavras · " + t.length + " caracteres · ~" + P.mmss((palavras / 150) * 60) + " a 150 ppm";
     }
 
+    // ------------------------------------------------------------- reconhecimento de voz
+    let recognizer = null;
+    let alignmentEngine = null;
+    let stateMachine = null;
+    let vozAtiva = false;
+
+    function alternarVoz() {
+      if (vozAtiva) desativarVoz(); else ativarVoz();
+    }
+
+    function ativarVoz() {
+      const btnVozIcon = raiz.querySelector('[data-a="voice"]');
+      if (!window.TextNormalizer || !window.AlignmentEngine || !window.WebSpeechRecognizer) {
+        if (vTxt) vTxt.textContent = "Módulos de voz não carregados.";
+        stat.textContent = "voz não disponível";
+        return;
+      }
+
+      const tokenData = window.TextNormalizer.tokenizeScript(roteiro);
+      alignmentEngine = new window.AlignmentEngine({
+        tokens: tokenData.tokens,
+        lines: tokenData.lines,
+        lookaheadWindow: 20,
+        confidentThreshold: 0.65
+      });
+
+      stateMachine = new window.SyncStateMachine({
+        silenceTimeoutMs: 2800,
+        onStateChange: ({ currentState }) => {
+          const badge = window.SyncStateMachine.getBadgeInfo(currentState);
+          stat.textContent = badge.label;
+          if (currentState === "PAUSED") {
+            if (vBox) vBox.classList.remove("hearing");
+          }
+        }
+      });
+
+      recognizer = new window.WebSpeechRecognizer({
+        lang: "pt-BR",
+        onStatusChange: ({ status: st }) => {
+          if (st === "LISTENING") {
+            stat.textContent = "ouvindo...";
+            if (btnVozIcon) btnVozIcon.classList.add("on");
+            if (vPulse) { vPulse.textContent = "🎙️"; vPulse.style.color = "#22c55e"; }
+            if (vTxt && (vTxt.textContent.includes("Fale algo") || vTxt.textContent.includes("Aguardando"))) {
+              vTxt.textContent = "❝ Fale algo no microfone... ❞";
+            }
+          } else {
+            if (btnVozIcon) btnVozIcon.classList.remove("on");
+            if (vPulse) vPulse.style.color = "#94a3b8";
+          }
+        },
+        onResult: ({ transcript, isFinal, isSilence }) => {
+          if (!vozAtiva) return;
+
+          if (vTxt && transcript) {
+            vTxt.textContent = "❝ " + transcript + " ❞";
+          }
+          if (vBox) {
+            vBox.classList.add("hearing");
+            clearTimeout(vBox._ht);
+            vBox._ht = setTimeout(() => vBox.classList.remove("hearing"), 1500);
+          }
+
+          if (isSilence) {
+            if (stateMachine && typeof stateMachine.onSilence === "function") {
+              stateMachine.onSilence();
+            }
+            return;
+          }
+
+          const match = alignmentEngine.processSpokenTranscript(transcript, isFinal);
+          if (match.action === "ADVANCE" || match.action === "JUMP_FORWARD") {
+            stateMachine.onConfidentMatch();
+            const tok = match.token;
+            if (tok) {
+              const paras = txt.querySelectorAll("p");
+              paras.forEach((p, idx) => p.classList.toggle("active-line", idx === tok.lineIndex));
+              const targetP = paras[tok.lineIndex];
+              if (targetP) {
+                const h = stage.clientHeight || 300;
+                targetOffset = Math.max(0, Math.min(maxOffset, targetP.offsetTop - h * (cfg.guidePos / 100)));
+                if (!tocando) {
+                  iniciarLaco();
+                }
+              }
+            }
+          } else if (match.confidence === "UNCERTAIN" || match.reason === "OFF_SCRIPT_OR_IMPROVISING") {
+            stateMachine.onUncertainMatch();
+          }
+        },
+        onError: (err) => {
+          stat.textContent = "erro mic";
+          if (vTxt) {
+            if (err.code === "PERMISSION_DENIED" || (err.message && err.message.includes("negada"))) {
+              vTxt.innerHTML = "⚠️ Permissão de mic negada. <a id='pedir-mic' style='color:#38bdf8;text-decoration:underline;cursor:pointer;'>Clique aqui para autorizar</a>";
+              const lk = vTxt.querySelector('#pedir-mic');
+              if (lk) {
+                lk.onclick = async (e) => {
+                  e.preventDefault();
+                  try {
+                    await navigator.mediaDevices.getUserMedia({ audio: true });
+                    ativarVoz();
+                  } catch (e2) {
+                    alert("Acesso ao microfone negado nas permissões do Chrome.");
+                  }
+                };
+              }
+            } else {
+              vTxt.textContent = "⚠️ Erro mic: " + (err.message || err.code);
+            }
+          }
+        }
+      });
+
+      vozAtiva = true;
+      if (btnVozIcon) btnVozIcon.classList.add("on");
+      recognizer.start();
+      stateMachine.startListening();
+      if (!tocando) {
+        tocando = true;
+        ultimoT = 0;
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(laco);
+        pintar();
+      }
+    }
+
+    function desativarVoz() {
+      vozAtiva = false;
+      const btnVozIcon = raiz.querySelector('[data-a="voice"]');
+      if (btnVozIcon) btnVozIcon.classList.remove("on");
+      if (vPulse) vPulse.style.color = "#94a3b8";
+      if (recognizer) {
+        recognizer.stop();
+        recognizer = null;
+      }
+      if (stateMachine) {
+        stateMachine.stop();
+        stateMachine = null;
+      }
+      stat.textContent = tocando ? "rolando" : "pausado";
+      txt.querySelectorAll("p.active-line").forEach((p) => p.classList.remove("active-line"));
+    }
+
     // ------------------------------------------------------------- eventos
     raiz.addEventListener("click", (e) => {
+      const btnModo = e.target.closest("[data-m]");
+      if (btnModo) {
+        e.preventDefault();
+        e.stopPropagation();
+        definirModo(btnModo.dataset.m);
+        return;
+      }
+
       const btn = e.target.closest("[data-a]");
       if (!btn) return;
       e.preventDefault();
       e.stopPropagation();
       switch (btn.dataset.a) {
+        case "voice": alternarVoz(); break;
         case "play": alternar(); break;
         case "restart": reiniciar(); break;
         case "back": empurrar(-(cfg.nudgePx || 80)); break;
@@ -682,6 +979,7 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
       montado = true;
       renderTexto();
       aplicarCfg();
+      definirModo("voz");
       if (!modoPagina && (!cfg.overlayVisible || opts.startHidden)) host.style.display = "none";
       // reagir a mudanças feitas nas opções / em outra aba
       P.onChange(({ settings, script }) => {
@@ -704,7 +1002,8 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
     const api = {
       montar, mostrar, esconder, alternarVisivel,
       tocar, pausar, alternar, reiniciar, empurrar, telaCheia,
-      mudarVel, mudarFonte, abrirEditor,
+      mudarVel, mudarFonte, abrirEditor, definirModo,
+      get modo() { return modo; },
       get tocando() { return tocando || contando; },
       get visivel() { return host.style.display !== "none"; },
       get cfg() { return cfg; },
@@ -720,7 +1019,9 @@ select { background: #0f1319; color: #e5e7eb; border: 1px solid rgba(255,255,255
         return melhor;
       },
       setCfg(patch) { Object.assign(cfg, patch); aplicarCfg(); },
-      setRoteiro(t) { roteiro = t; renderTexto(); }
+      setRoteiro(t) { roteiro = t; renderTexto(); },
+      alternarVoz, ativarVoz, desativarVoz,
+      get vozAtiva() { return vozAtiva; }
     };
     return api;
   }
