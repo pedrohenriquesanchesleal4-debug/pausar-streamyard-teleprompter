@@ -19,16 +19,21 @@ let prompter = null;
     prompter.alternar();
   }
 
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (!msg || !prompter) return;
-    if (msg.action === "toggle-pause") alternarUmaVez();
-    else if (msg.action === "prompter-cmd" && msg.cmd === "alternar") alternarUmaVez();
-    else if (msg.action === "prompter-cmd" && typeof prompter[msg.cmd] === "function") prompter[msg.cmd](msg.val);
-  });
+  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (!msg || !prompter) return;
+      if (msg.action === "toggle-pause") alternarUmaVez();
+      else if (msg.action === "prompter-cmd" && msg.cmd === "alternar") alternarUmaVez();
+      else if (msg.action === "prompter-cmd" && typeof prompter[msg.cmd] === "function") prompter[msg.cmd](msg.val);
+    });
+  }
 
   async function avisarStreamYard(msg) {
-    const abas = await chrome.tabs.query({ url: "*://*.streamyard.com/*" });
-    for (const a of abas) chrome.tabs.sendMessage(a.id, msg).catch(() => {});
+    if (typeof chrome === "undefined" || !chrome.tabs || !chrome.tabs.query) return;
+    try {
+      const abas = await chrome.tabs.query({ url: "*://*.streamyard.com/*" });
+      for (const a of abas) chrome.tabs.sendMessage(a.id, msg).catch(() => {});
+    } catch (_) {}
   }
 
   window.addEventListener("keydown", (e) => {
