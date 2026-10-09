@@ -55,6 +55,7 @@ button.on { background: #2563eb; border-color: #3b82f6; }
   <button class="main" data-a="tudo">⏸ Pausar tudo</button>
   <span class="kbd"></span>
   <button data-a="tp" title="Mostrar/esconder teleprompter">Teleprompter</button>
+  <button data-a="voz" title="Ativar/desativar voz (pt-BR)">🎙</button>
   <button data-a="painel" title="Abrir no painel lateral do Chrome">🗔</button>
   <button data-a="editar" title="Editar roteiro">✎</button>
   <button data-a="marcar" title="Marcar este momento no log (corta aqui)">🚩</button>
@@ -86,6 +87,7 @@ button.on { background: #2563eb; border-color: #3b82f6; }
       switch (b.dataset.a) {
         case "tudo": executar(true); break;
         case "tp": prompter && prompter.alternarVisivel(); atualizarPill(); break;
+        case "voz": prompter && prompter.alternarVoz && prompter.alternarVoz(); break;
         case "editar": prompter && (prompter.mostrar(), prompter.abrirEditor()); break;
         case "marcar": marcar(); break;
         case "learn":
