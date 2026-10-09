@@ -23,8 +23,16 @@ async function transmitir(msg, exceto) {
   chrome.runtime.sendMessage(msg).catch(() => {});
 }
 
-const SCRIPTS_SY = ["src/shared.js", "src/prompter.js", "src/streamyard-target.js", "src/content-streamyard.js"];
-const SCRIPTS_TW = ["src/shared.js", "src/content-teleprompter.js"];
+const SCRIPTS_SY = [
+  "src/shared.js", "src/text-normalizer.js", "src/alignment-engine.js",
+  "src/sync-state-machine.js", "src/speech-recognizer.js",
+  "src/prompter.js", "src/streamyard-target.js", "src/content-streamyard.js"
+];
+const SCRIPTS_TW = [
+  "src/shared.js", "src/text-normalizer.js", "src/alignment-engine.js",
+  "src/sync-state-machine.js", "src/speech-recognizer.js",
+  "src/content-teleprompter.js"
+];
 
 // injeta os content scripts nas abas ja abertas (depois de instalar/atualizar,
 // ou quando a aba nao responde) — evita depender de F5
@@ -132,14 +140,22 @@ chrome.runtime.onMessage.addListener((msg, sender, resposta) => {
       abrirPainel(sender.tab ? sender.tab.id : undefined).then(resposta);
       return true;
 
-    case "abrir-janela-prompter":
+    case "abrir-janela-prompter": {
+      let urlJanela = chrome.runtime.getURL("pages/prompter.html");
+      try {
+        const m = chrome.runtime.getManifest();
+        if (m.side_panel && m.side_panel.default_path && m.side_panel.default_path.startsWith("pausar-extensao/")) {
+          urlJanela = chrome.runtime.getURL("pausar-extensao/pages/prompter.html");
+        }
+      } catch (_) {}
       chrome.windows.create({
-        url: chrome.runtime.getURL("pages/prompter.html"),
+        url: urlJanela,
         type: "popup",
         width: 760,
         height: 520
       });
       break;
+    }
 
     case "abrir-streamyard":
       chrome.tabs.create({ url: "https://streamyard.com/" });

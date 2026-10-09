@@ -12,13 +12,29 @@
   "content_scripts": [
     {
       "matches": ["*://*.streamyard.com/*"],
-      "js": ["src/shared.js", "src/prompter.js", "src/streamyard-target.js", "src/content-streamyard.js"],
+      "js": [
+        "src/shared.js",
+        "src/text-normalizer.js",
+        "src/alignment-engine.js",
+        "src/sync-state-machine.js",
+        "src/speech-recognizer.js",
+        "src/prompter.js",
+        "src/streamyard-target.js",
+        "src/content-streamyard.js"
+      ],
       "run_at": "document_start",
       "all_frames": true
     },
     {
       "matches": ["*://*.teleprompter.works/*"],
-      "js": ["src/shared.js", "src/content-teleprompter.js"],
+      "js": [
+        "src/shared.js",
+        "src/text-normalizer.js",
+        "src/alignment-engine.js",
+        "src/sync-state-machine.js",
+        "src/speech-recognizer.js",
+        "src/content-teleprompter.js"
+      ],
       "run_at": "document_start",
       "all_frames": false
     }
@@ -62,8 +78,17 @@
   "options_page": "pages/options.html",
   "web_accessible_resources": [
     {
-      "resources": ["pages/prompter.html"],
-      "matches": ["*://*.streamyard.com/*"]
+      "resources": [
+        "pages/prompter.html",
+        "pages/prompter-page.js",
+        "src/shared.js",
+        "src/text-normalizer.js",
+        "src/alignment-engine.js",
+        "src/sync-state-machine.js",
+        "src/speech-recognizer.js",
+        "src/prompter.js"
+      ],
+      "matches": ["*://*.streamyard.com/*", "*://*.teleprompter.works/*"]
     }
   ]
 }
