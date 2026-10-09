@@ -105,20 +105,22 @@
       try { el = document.querySelector(sel); } catch (_) { el = null; }
       if (el && visivel(el)) {
         const antes = rotulo(el);
-        const estadoAntes = estadoDe(el);
+        const timers = snapshotTimers();
+        const estadoAntes = estadoPelosTimers() || estadoDe(el);
         const timecode = lerTimecode();
         const alvo = clicar(el);
-        return { ok: true, via, label: rotulo(alvo), antes, estadoAntes, timecode };
+        return { ok: true, via, label: rotulo(alvo), antes, estadoAntes, timecode, timers };
       }
     }
 
     const achado = acharBotao();
     if (achado) {
       const antes = rotulo(achado.el);
-      const estadoAntes = estadoDe(achado.el);
+      const timers = snapshotTimers();
+      const estadoAntes = estadoPelosTimers() || estadoDe(achado.el);
       const timecode = lerTimecode();
       const alvo = clicar(achado.el);
-      return { ok: true, via: "heurística", label: rotulo(alvo), antes, estadoAntes, timecode };
+      return { ok: true, via: "heurística", label: rotulo(alvo), antes, estadoAntes, timecode, timers };
     }
     return { ok: false, via: "nenhum", label: "" };
   }
@@ -143,6 +145,65 @@
   let gravando = true;       // enquanto pausado nao aprende (o cronometro fica parado)
   let amostras = new Map();
   let monitorId = 0;
+
+  // ---- cronômetros nomeados do StreamYard -------------------------------
+  // O estúdio monta o relógio com UM <span> POR DÍGITO dentro de
+  // <div class="Timer__TimerWrapper-...">, e a etiqueta em volta diz o que é:
+  //   <span class="Tags__LiveTag-...">Gravações<div class="Timer__TimerWrapper-...">3:13</div></span>
+  //   <span class="Tags__PausedTag-...">Pausado<div class="Timer__TimerWrapper-...">3:00</div></span>
+  // Varrer só elementos-folha nunca acha isso (cada folha é "3", ":", "1"...),
+  // então aqui a leitura é feita no wrapper, juntando o texto dos filhos.
+  const RE_ROTULO_GRAV = /grava|record/i;
+  const RE_ROTULO_PAUSA = /pausad|paused/i;
+
+  function lerTimers() {
+    const res = { gravacao: null, pausa: null, outros: [] };
+    const wrappers = document.querySelectorAll(
+      '[class*="Timer__TimerWrapper"], [class*="TimerWrapper"], [class*="Timer__"]'
+    );
+    for (const w of wrappers) {
+      const txt = (w.textContent || "").replace(/\s+/g, "");
+      if (!RE_TC.test(txt)) continue;
+      const seg = P.timecodeParaSeg(txt);
+      if (seg == null || !visivel(w)) continue;
+
+      // a etiqueta é o texto do ancestral sem os dígitos ("Gravações3:13" -> "Gravações")
+      let rotulo = "";
+      let pai = w.parentElement;
+      for (let i = 0; pai && i < 3 && !rotulo; i++) {
+        rotulo = (pai.textContent || "").replace(/\s+/g, " ").replace(/[\d:\s]+$/, "").trim();
+        pai = pai.parentElement;
+      }
+
+      const item = { txt, seg, rotulo, el: w };
+      if (RE_ROTULO_PAUSA.test(rotulo)) res.pausa = res.pausa || item;
+      else if (RE_ROTULO_GRAV.test(rotulo)) res.gravacao = res.gravacao || item;
+      else res.outros.push(item);
+    }
+    // sem etiqueta reconhecida, o primeiro relógio visível serve de gravação
+    if (!res.gravacao && res.outros.length) res.gravacao = res.outros[0];
+    return res;
+  }
+
+  // a etiqueta "Pausado" existir é o sinal mais confiável de que a gravação está pausada
+  function estadoPelosTimers() {
+    const t = lerTimers();
+    if (t.pausa) return "pausado";
+    if (t.gravacao) return "gravando";
+    return null;
+  }
+
+  // dados simples (sem elemento DOM) para viajar em mensagem e ir para o log
+  function snapshotTimers() {
+    const t = lerTimers();
+    return {
+      gravacaoTxt: t.gravacao ? t.gravacao.txt : "",
+      gravacaoSeg: t.gravacao ? t.gravacao.seg : null,
+      gravacaoRotulo: t.gravacao ? t.gravacao.rotulo : "",
+      pausaTxt: t.pausa ? t.pausa.txt : "",
+      pausaSeg: t.pausa ? t.pausa.seg : null
+    };
+  }
 
   function varrerTimecodes() {
     const out = [];
@@ -213,6 +274,10 @@
   // devolve "" quando não há cronômetro confirmado — melhor calcular o timecode
   // do que gravar um número errado no log
   function lerTimecode() {
+    // 1) cronômetro nomeado do estúdio ("Gravações")
+    const t = lerTimers();
+    if (t.gravacao) return t.gravacao.txt;
+    // 2) seletor informado pelo usuário
     if (timerSel) {
       try {
         const el = document.querySelector(timerSel);
@@ -330,7 +395,7 @@
   P.streamyard = {
     pausarGravacao, acharBotao, testarSeletor, aprender,
     construirSeletor, caminhoDom, estadoDe, lerTimecode,
-    monitorarTimer, setGravando,
-    get timerOk() { return timerValido() || !!(timerSel && lerTimecode()); }
+    monitorarTimer, setGravando, lerTimers, snapshotTimers, estadoPelosTimers,
+    get timerOk() { return !!lerTimers().gravacao || timerValido() || !!(timerSel && lerTimecode()); }
   };
 })();
