@@ -51,8 +51,8 @@
     <button class="main" data-a="tudo" title="Pausar/retomar gravação + rolagem">⏸ Tudo</button>
     <button data-a="marcar" title="Marcar este momento no log (Alt+M)">🚩</button>
     <button data-a="olho" title="Mostrar/esconder o teleprompter sobre o StreamYard">👁</button>
-    <button data-a="janela" title="Abrir em janela separada">🗔</button>
-    <button data-a="aba" title="Abrir os ajustes em uma aba">↗</button>
+    <button data-a="janela" title="Abrir em janela flutuante separada">🗔 Janela</button>
+    <button data-a="aba" title="Abrir o Teleprompter em uma aba inteira">↗ Nova Aba</button>
   </div>
 
   <div class="abas">
@@ -68,6 +68,10 @@
   <div class="msg" id="msg"></div>
 
   <script src="../src/shared.js"></script>
+  <script src="../src/text-normalizer.js"></script>
+  <script src="../src/alignment-engine.js"></script>
+  <script src="../src/sync-state-machine.js"></script>
+  <script src="../src/speech-recognizer.js"></script>
   <script src="../src/prompter.js"></script>
   <script src="sidepanel.js"></script>
 </body>

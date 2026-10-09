@@ -70,16 +70,35 @@ $(".bar").addEventListener("click", async (e) => {
       dizer(n ? "🚩 marcador anotado no log." : "Nenhuma aba do StreamYard aberta.");
       break;
     }
-    case "aba":
-      chrome.runtime.openOptionsPage();
+    case "aba": {
+      const urlAba = new URL("prompter.html", window.location.href).href;
+      if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.create) {
+        chrome.tabs.create({ url: urlAba });
+      } else {
+        window.open(urlAba, "_blank");
+      }
       break;
+    }
     case "olho":
       cfg = await P.saveSettings({ overlayVisible: !cfg.overlayVisible });
       $('[data-a="olho"]').classList.toggle("on", !!cfg.overlayVisible);
       break;
-    case "janela":
-      chrome.runtime.sendMessage({ action: "abrir-janela-prompter" });
+    case "janela": {
+      const urlJanela = new URL("prompter.html", window.location.href).href;
+      if (typeof chrome !== "undefined" && chrome.windows && chrome.windows.create) {
+        chrome.windows.create({
+          url: urlJanela,
+          type: "popup",
+          width: 760,
+          height: 520
+        });
+      } else if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({ action: "abrir-janela-prompter" });
+      } else {
+        window.open(urlJanela, "prompter", "width=760,height=520");
+      }
       break;
+    }
   }
 });
 
