@@ -14,10 +14,6 @@
       "matches": ["*://*.streamyard.com/*"],
       "js": [
         "src/shared.js",
-        "src/text-normalizer.js",
-        "src/alignment-engine.js",
-        "src/sync-state-machine.js",
-        "src/speech-recognizer.js",
         "src/prompter.js",
         "src/streamyard-target.js",
         "src/content-streamyard.js"
@@ -29,10 +25,6 @@
       "matches": ["*://*.teleprompter.works/*"],
       "js": [
         "src/shared.js",
-        "src/text-normalizer.js",
-        "src/alignment-engine.js",
-        "src/sync-state-machine.js",
-        "src/speech-recognizer.js",
         "src/content-teleprompter.js"
       ],
       "run_at": "document_start",
@@ -82,10 +74,6 @@
         "pages/prompter.html",
         "pages/prompter-page.js",
         "src/shared.js",
-        "src/text-normalizer.js",
-        "src/alignment-engine.js",
-        "src/sync-state-machine.js",
-        "src/speech-recognizer.js",
         "src/prompter.js"
       ],
       "matches": ["*://*.streamyard.com/*", "*://*.teleprompter.works/*"]

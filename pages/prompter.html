@@ -5,17 +5,20 @@
 <title>Teleprompter</title>
 <style>
   :root { color-scheme: dark; }
-  html, body { margin: 0; height: 100%; background: #05070c; overflow: hidden; }
-  #palco { position: relative; width: 100%; height: 100%; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100vw; height: 100vh;
+    background: #05070c; overflow: hidden; display: flex; flex-direction: column;
+  }
+  #palco {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
 </style>
 </head>
 <body>
   <div id="palco"></div>
   <script src="../src/shared.js"></script>
-  <script src="../src/text-normalizer.js"></script>
-  <script src="../src/alignment-engine.js"></script>
-  <script src="../src/sync-state-machine.js"></script>
-  <script src="../src/speech-recognizer.js"></script>
   <script src="../src/prompter.js"></script>
   <script src="prompter-page.js"></script>
 </body>

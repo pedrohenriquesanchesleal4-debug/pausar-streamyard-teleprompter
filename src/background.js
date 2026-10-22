@@ -24,14 +24,10 @@ async function transmitir(msg, exceto) {
 }
 
 const SCRIPTS_SY = [
-  "src/shared.js", "src/text-normalizer.js", "src/alignment-engine.js",
-  "src/sync-state-machine.js", "src/speech-recognizer.js",
-  "src/prompter.js", "src/streamyard-target.js", "src/content-streamyard.js"
+  "src/shared.js", "src/prompter.js", "src/streamyard-target.js", "src/content-streamyard.js"
 ];
 const SCRIPTS_TW = [
-  "src/shared.js", "src/text-normalizer.js", "src/alignment-engine.js",
-  "src/sync-state-machine.js", "src/speech-recognizer.js",
-  "src/content-teleprompter.js"
+  "src/shared.js", "src/content-teleprompter.js"
 ];
 
 // injeta os content scripts nas abas ja abertas (depois de instalar/atualizar,
